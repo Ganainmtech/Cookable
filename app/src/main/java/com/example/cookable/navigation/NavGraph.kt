@@ -2,8 +2,8 @@
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -34,15 +34,20 @@ fun CookableNavGraph(
                 onGoToRecipes = { navController.navigate(Routes.RECIPES) }
             )
         }
+
         composable(Routes.RECIPES) {
             RecipesScreen(
                 contentPadding = contentPadding,
-                onOpenRecipe = { id -> navController.navigate("recipeDetail/$id") }
+                onOpenRecipe = { id ->
+                    navController.navigate("recipeDetail/$id")
+                }
             )
         }
+
         composable(Routes.SHOPPING) {
             ShoppingListScreen(contentPadding = contentPadding)
         }
+
         composable(
             route = Routes.RECIPE_DETAIL,
             arguments = listOf(
@@ -52,7 +57,8 @@ fun CookableNavGraph(
             val id = backStackEntry.arguments?.getLong("recipeId") ?: -1L
             RecipeDetailScreen(
                 contentPadding = contentPadding,
-                recipeId = id
+                recipeId = id,
+                navController = navController
             )
         }
     }

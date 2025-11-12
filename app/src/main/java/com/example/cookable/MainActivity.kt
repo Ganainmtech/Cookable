@@ -10,11 +10,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.cookable.navigation.CookableNavGraph
+import com.example.cookable.navigation.Routes
 import com.example.cookable.ui.theme.CookableTheme
-import androidx.navigation.NavDestination.Companion.hierarchy
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,9 +38,9 @@ private fun CookableApp() {
     val navController = rememberNavController()
 
     val tabs = listOf(
-        TabItem(route = "cupboard", label = "Cupboard"),
-        TabItem(route = "recipes",  label = "Recipes"),
-        TabItem(route = "shopping", label = "Shopping")
+        TabItem(route = Routes.CUPBOARD, label = "Cupboard"),
+        TabItem(route = Routes.RECIPES,  label = "Recipes"),
+        TabItem(route = Routes.SHOPPING, label = "Shopping")
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -53,15 +54,12 @@ private fun CookableApp() {
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
-                            if (!selected) {
-                                navController.navigate(item.route) {
-                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                            // SIMPLE: always navigate to that route
+                            navController.navigate(item.route) {
+                                launchSingleTop = true   // avoid duplicates of same screen
                             }
                         },
-                        icon = {},
+                        icon = {}, // keep it plain for now
                         label = { Text(item.label) }
                     )
                 }

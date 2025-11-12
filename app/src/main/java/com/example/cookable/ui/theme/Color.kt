@@ -1,3 +1,6 @@
 ﻿package com.example.cookable.ui.theme
 
-// (intentionally empty)
+import androidx.compose.material3.Shapes
+
+// Keep defaults – we’re not customizing yet
+val Shapes = Shapes()

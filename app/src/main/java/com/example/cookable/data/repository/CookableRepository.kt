@@ -1,16 +1,18 @@
 ﻿package com.example.cookable.data.repository
 
 import com.example.cookable.data.local.dao.CupboardDao
+import com.example.cookable.data.local.dao.ShoppingDao
 import com.example.cookable.data.local.entity.CupboardItemEntity
+import com.example.cookable.data.local.entity.ShoppingItemEntity
 import com.example.cookable.data.remote.api.RecipeApi
 import com.example.cookable.data.remote.dto.RecipeDto
 import kotlinx.coroutines.flow.Flow
 
 class CookableRepository(
     private val cupboardDao: CupboardDao,
-    private val recipeApi: RecipeApi = RecipeApi.instance // default API instance
+    private val shoppingDao: ShoppingDao,
+    private val recipeApi: RecipeApi = RecipeApi.instance
 ) {
-    // --- Room: Cupboard ---
 
     val cupboardItems: Flow<List<CupboardItemEntity>> = cupboardDao.getAll()
 
@@ -29,12 +31,23 @@ class CookableRepository(
         cupboardDao.deleteById(id)
     }
 
-    // --- API: Recipes (TheMealDB) ---
+    val shoppingItems: Flow<List<ShoppingItemEntity>> = shoppingDao.getAll()
 
-    /**
-     * Search recipes from the remote API.
-     * Returns an empty list if query is blank or if any error occurs.
-     */
+    suspend fun addShoppingItem(name: String, quantity: String?, unit: String?) {
+        if (name.isBlank()) return
+        shoppingDao.insert(
+            ShoppingItemEntity(
+                name = name.trim(),
+                quantity = quantity?.trim(),
+                unit = unit?.trim()
+            )
+        )
+    }
+
+    suspend fun removeShoppingItemById(id: Long) {
+        shoppingDao.deleteById(id)
+    }
+
     suspend fun searchRecipes(query: String): List<RecipeDto> {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) return emptyList()

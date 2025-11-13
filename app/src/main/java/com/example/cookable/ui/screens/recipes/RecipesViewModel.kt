@@ -11,9 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * UI-friendly representation of a recipe from the API.
- */
 data class RecipeUi(
     val id: Long,
     val name: String,
@@ -29,10 +26,15 @@ data class RecipesUiState(
 
 class RecipesViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Reuse the same repository (Room + API)
-    private val repo = CookableRepository(
-        AppDatabase.getInstance(application).cupboardDao()
-    )
+    private val repo: CookableRepository
+
+    init {
+        val db = AppDatabase.getInstance(application)
+        repo = CookableRepository(
+            cupboardDao = db.cupboardDao(),
+            shoppingDao = db.shoppingDao()
+        )
+    }
 
     private val _uiState = MutableStateFlow(RecipesUiState())
     val uiState: StateFlow<RecipesUiState> = _uiState.asStateFlow()

@@ -17,9 +17,15 @@ data class CupboardUiState(
 )
 
 class CupboardViewModel(application: Application) : AndroidViewModel(application) {
-    private val repo = CookableRepository(
-        AppDatabase.getInstance(application).cupboardDao()
-    )
+    private val repo: CookableRepository
+
+    init {
+        val db = AppDatabase.getInstance(application)
+        repo = CookableRepository(
+            cupboardDao = db.cupboardDao(),
+            shoppingDao = db.shoppingDao()
+        )
+    }
 
     val uiState: StateFlow<CupboardUiState> =
         repo.cupboardItems

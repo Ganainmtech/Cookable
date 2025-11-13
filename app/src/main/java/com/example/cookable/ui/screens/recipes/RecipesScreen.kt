@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,6 +28,11 @@ fun RecipesScreen(
 ) {
     val state by vm.uiState.collectAsState()
 
+    // Decide which recipes to show based on toggle
+    val displayedRecipes =
+        if (state.showCookableOnly) state.recipes.filter { it.isCookable }
+        else state.recipes
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -34,9 +40,10 @@ fun RecipesScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
         Text("Recipes 🍝")
 
-        // Search row
+        // SEARCH BAR
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -47,6 +54,7 @@ fun RecipesScreen(
                 onValueChange = vm::onQueryChange,
                 label = { Text("Search recipes (e.g. chicken)") }
             )
+
             Button(
                 modifier = Modifier.alignByBaseline(),
                 onClick = { vm.search() }
@@ -55,7 +63,19 @@ fun RecipesScreen(
             }
         }
 
-        // Loading indicator
+        // TOGGLE: SHOW ONLY COOKABLE
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Show only cookable with my cupboard")
+            Switch(
+                checked = state.showCookableOnly,
+                onCheckedChange = vm::onShowCookableOnlyChange
+            )
+        }
+
+        // LOADING SPINNER
         if (state.isLoading) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -65,31 +85,41 @@ fun RecipesScreen(
             }
         }
 
-        // Error / empty message
+        // ERROR MESSAGE
         state.error?.let { err ->
             Text(text = err)
         }
 
-        // Results list
+        // RECIPES LIST
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(state.recipes, key = { it.id }) { recipe ->
+            items(displayedRecipes, key = { it.id }) { recipe ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            if (recipe.id != -1L) {
-                                onOpenRecipe(recipe.id)
-                            }
+                            if (recipe.id != -1L) onOpenRecipe(recipe.id)
                         }
                         .padding(8.dp)
                 ) {
+
                     Text(recipe.name)
-                    if (recipe.thumbnailUrl != null) {
+
+                    // Cookable label
+                    Text(
+                        text = if (recipe.isCookable)
+                            "Cookable with your cupboard ✅"
+                        else
+                            "Missing ingredients ❌",
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+
+                    // Thumbnail URL (basic text for now)
+                    recipe.thumbnailUrl?.let {
                         Text(
-                            text = "Image: ${recipe.thumbnailUrl}",
+                            text = "Image: $it",
                             modifier = Modifier.padding(top = 2.dp)
                         )
                     }
@@ -100,8 +130,7 @@ fun RecipesScreen(
 }
 
 /**
- * Helper that builds an AndroidViewModel (needs Application).
- * Same pattern as we used in CupboardScreen.
+ * AndroidViewModel helper
  */
 @Composable
 private fun androidViewModel(): RecipesViewModel {

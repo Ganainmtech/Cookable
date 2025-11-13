@@ -8,19 +8,25 @@ import com.example.cookable.data.repository.CookableRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * UI-friendly recipe model including whether it's cookable.
+ */
 data class RecipeUi(
     val id: Long,
     val name: String,
-    val thumbnailUrl: String?
+    val thumbnailUrl: String?,
+    val isCookable: Boolean
 )
 
 data class RecipesUiState(
     val query: String = "",
     val isLoading: Boolean = false,
     val recipes: List<RecipeUi> = emptyList(),
+    val showCookableOnly: Boolean = false,
     val error: String? = null
 )
 
@@ -43,6 +49,10 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         _uiState.update { it.copy(query = newQuery) }
     }
 
+    fun onShowCookableOnlyChange(checked: Boolean) {
+        _uiState.update { it.copy(showCookableOnly = checked) }
+    }
+
     fun search() {
         val currentQuery = _uiState.value.query.trim()
         if (currentQuery.isEmpty()) return
@@ -50,15 +60,36 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
+            // Load cupboard items and normalize
+            val cupboardNames: List<String> = repo.cupboardItems
+                .first()
+                .map { it.name.trim().lowercase() }
+
+            // Fetch API results
             val result = repo.searchRecipes(currentQuery)
+
+            // Map API to UI and determine cookability
             val mapped = result.map { dto ->
+                val ingredients = dto.ingredients()
+                    .map { it.trim().lowercase() }
+
+                val isCookable =
+                    ingredients.isNotEmpty() &&
+                            ingredients.all { ing ->
+                                cupboardNames.any { cupboardName ->
+                                    cupboardName.contains(ing) || ing.contains(cupboardName)
+                                }
+                            }
+
                 RecipeUi(
                     id = dto.id.toLongOrNull() ?: -1L,
                     name = dto.name,
-                    thumbnailUrl = dto.thumbnailUrl
+                    thumbnailUrl = dto.thumbnailUrl,
+                    isCookable = isCookable
                 )
             }
 
+            // Update state
             _uiState.update {
                 it.copy(
                     isLoading = false,

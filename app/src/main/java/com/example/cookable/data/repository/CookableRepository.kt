@@ -5,7 +5,7 @@ import com.example.cookable.data.local.dao.ShoppingDao
 import com.example.cookable.data.local.entity.CupboardItemEntity
 import com.example.cookable.data.local.entity.ShoppingItemEntity
 import com.example.cookable.data.remote.api.RecipeApi
-import com.example.cookable.data.remote.dto.RecipeDto
+import com.example.cookable.data.local.dao.RecipeDto
 import kotlinx.coroutines.flow.Flow
 
 class CookableRepository(

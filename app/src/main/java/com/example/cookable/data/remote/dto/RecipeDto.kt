@@ -1,5 +1,6 @@
 ﻿package com.example.cookable.data.remote.dto
 
+import com.example.cookable.data.local.dao.RecipeDto
 import com.google.gson.annotations.SerializedName
 
 /**

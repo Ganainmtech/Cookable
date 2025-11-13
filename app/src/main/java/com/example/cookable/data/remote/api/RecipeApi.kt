@@ -1,6 +1,6 @@
 ﻿package com.example.cookable.data.remote.api
 
-import com.example.cookable.data.remote.dto.RecipeSearchResponse
+import com.example.cookable.data.local.dao.RecipeSearchResponse
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET

@@ -19,7 +19,8 @@ data class RecipeUi(
     val id: Long,
     val name: String,
     val thumbnailUrl: String?,
-    val isCookable: Boolean
+    val isCookable: Boolean,
+    val ingredients: List<String>
 )
 
 data class RecipesUiState(
@@ -70,12 +71,13 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
 
             // Map API to UI and determine cookability
             val mapped = result.map { dto ->
-                val ingredients = dto.ingredients()
+                val ingredientsRaw = dto.ingredients()
+                val ingredientsLower = ingredientsRaw
                     .map { it.trim().lowercase() }
 
                 val isCookable =
-                    ingredients.isNotEmpty() &&
-                            ingredients.all { ing ->
+                    ingredientsLower.isNotEmpty() &&
+                            ingredientsLower.all { ing ->
                                 cupboardNames.any { cupboardName ->
                                     cupboardName.contains(ing) || ing.contains(cupboardName)
                                 }
@@ -85,7 +87,8 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
                     id = dto.id.toLongOrNull() ?: -1L,
                     name = dto.name,
                     thumbnailUrl = dto.thumbnailUrl,
-                    isCookable = isCookable
+                    isCookable = isCookable,
+                    ingredients = ingredientsRaw // keep original-cased for display
                 )
             }
 
@@ -99,4 +102,10 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
+    /**
+     * Helper to find a recipe by its ID from the current search results.
+     */
+    fun getRecipeById(id: Long): RecipeUi? =
+        _uiState.value.recipes.firstOrNull { it.id == id }
 }

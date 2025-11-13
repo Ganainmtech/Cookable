@@ -95,7 +95,10 @@ fun RecipesScreen(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(displayedRecipes, key = { it.id }) { recipe ->
+            items(
+                items = displayedRecipes,
+                key = { it.id }
+            ) { recipe: RecipeUi ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,7 +133,7 @@ fun RecipesScreen(
 }
 
 /**
- * AndroidViewModel helper
+ * AndroidViewModel helper (same pattern as Cupboard + Shopping).
  */
 @Composable
 private fun androidViewModel(): RecipesViewModel {

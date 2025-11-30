@@ -133,16 +133,23 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             // Fetch API results
             val result = repo.searchRecipes(currentQuery)
 
-            // Convert API → RecipeUi list (API currently has no ingredient fields)
+            // Convert API → RecipeUi list using real ingredients from API
             val apiMapped = result.map { dto ->
 
-                val rawIngredients = emptyList<String>()   // API has no ingredients for now
+                val rawIngredients = dto.ingredients()
+                val ingredientsLower = rawIngredients.map { it.lowercase() }
+
+                val isCookable =
+                    ingredientsLower.isNotEmpty() &&
+                            ingredientsLower.all { ing ->
+                                cupboardNames.any { c -> c.contains(ing) || ing.contains(c) }
+                            }
 
                 RecipeUi(
                     id = dto.id.toLongOrNull() ?: -1L,
                     name = dto.name,
                     thumbnailUrl = dto.thumbnailUrl,
-                    isCookable = false, // cannot determine without ingredients
+                    isCookable = isCookable,
                     ingredients = rawIngredients,
                     instructions = dto.instructions
                 )
@@ -160,6 +167,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
 
     /**
      * Helper to find a recipe by its ID from the current search results.

@@ -1,7 +1,11 @@
 ﻿package com.example.cookable.navigation
 
+import android.app.Application
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -10,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.cookable.ui.screens.cupboard.CupboardScreen
 import com.example.cookable.ui.screens.recipes.RecipeDetailScreen
 import com.example.cookable.ui.screens.recipes.RecipesScreen
+import com.example.cookable.ui.screens.recipes.RecipesViewModel
 import com.example.cookable.ui.screens.shopping.ShoppingListScreen
 
 object Routes {
@@ -24,6 +29,11 @@ fun CookableNavGraph(
     navController: NavHostController,
     contentPadding: PaddingValues
 ) {
+    // Create ONE shared RecipesViewModel and pass it everywhere
+    val app = LocalContext.current.applicationContext as Application
+    val recipesVm: RecipesViewModel =
+        viewModel(factory = ViewModelProvider.AndroidViewModelFactory.getInstance(app))
+
     NavHost(
         navController = navController,
         startDestination = Routes.CUPBOARD
@@ -40,7 +50,8 @@ fun CookableNavGraph(
                 contentPadding = contentPadding,
                 onOpenRecipe = { id ->
                     navController.navigate("recipeDetail/$id")
-                }
+                },
+                vm = recipesVm      // ✅ Correct parameter name
             )
         }
 
@@ -55,10 +66,12 @@ fun CookableNavGraph(
             )
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("recipeId") ?: ""
+
             RecipeDetailScreen(
                 contentPadding = contentPadding,
                 recipeId = id,
-                navController = navController
+                navController = navController,
+                recipesVm = recipesVm     // ✅ shared VM passed in
             )
         }
     }

@@ -51,10 +51,10 @@ fun CookableNavGraph(
         composable(
             route = Routes.RECIPE_DETAIL,
             arguments = listOf(
-                navArgument("recipeId") { type = NavType.LongType }
+                navArgument("recipeId") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getLong("recipeId") ?: -1L
+            val id = backStackEntry.arguments?.getString("recipeId") ?: ""
             RecipeDetailScreen(
                 contentPadding = contentPadding,
                 recipeId = id,

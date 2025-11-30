@@ -1,50 +1,24 @@
 ﻿package com.example.cookable.data.local.dao
 
-import com.google.gson.annotations.SerializedName
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.example.cookable.data.local.entity.RecipeEntity
+import kotlinx.coroutines.flow.Flow
 
-/**
- * Response wrapper from TheMealDB search endpoint
- */
-data class RecipeSearchResponse(
-    @SerializedName("meals") val meals: List<RecipeDto>?
-)
+@Dao
+interface RecipeDao {
 
-/**
- * Minimal recipe info + a few ingredient fields
- */
-data class RecipeDto(
-    @SerializedName("idMeal") val id: String,
-    @SerializedName("strMeal") val name: String,
-    @SerializedName("strInstructions") val instructions: String?,
-    @SerializedName("strMealThumb") val thumbnailUrl: String?,
+    @Query("SELECT * FROM recipes")
+    fun getAll(): Flow<List<RecipeEntity>>
 
-    // We only need some ingredient slots (TheMealDB has up to 20)
-    @SerializedName("strIngredient1") val ingredient1: String?,
-    @SerializedName("strIngredient2") val ingredient2: String?,
-    @SerializedName("strIngredient3") val ingredient3: String?,
-    @SerializedName("strIngredient4") val ingredient4: String?,
-    @SerializedName("strIngredient5") val ingredient5: String?,
-    @SerializedName("strIngredient6") val ingredient6: String?,
-    @SerializedName("strIngredient7") val ingredient7: String?,
-    @SerializedName("strIngredient8") val ingredient8: String?,
-    @SerializedName("strIngredient9") val ingredient9: String?,
-    @SerializedName("strIngredient10") val ingredient10: String?
-) {
-    /**
-     * Returns a cleaned list of ingredient names
-     */
-    fun ingredients(): List<String> = listOf(
-        ingredient1,
-        ingredient2,
-        ingredient3,
-        ingredient4,
-        ingredient5,
-        ingredient6,
-        ingredient7,
-        ingredient8,
-        ingredient9,
-        ingredient10
-    )
-        .mapNotNull { it?.trim() }
-        .filter { it.isNotEmpty() }
+    @Query("SELECT * FROM recipes WHERE id = :id")
+    suspend fun getById(id: Long): RecipeEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(recipe: RecipeEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(recipes: List<RecipeEntity>)
 }

@@ -15,14 +15,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.PaddingValues
 import com.example.cookable.ui.screens.cupboard.CupboardViewModel
+import com.example.cookable.ui.screens.shopping.ShoppingListViewModel
 
 @Composable
 fun RecipeDetailScreen(
     contentPadding: PaddingValues,
-    recipeId: Long,
+    recipeId: String,
     navController: NavController,
     recipesVm: RecipesViewModel = recipesAndroidViewModel(),
-    cupboardVm: CupboardViewModel = cupboardAndroidViewModel()
+    cupboardVm: CupboardViewModel = cupboardAndroidViewModel(),
+    shoppingVm: ShoppingListViewModel = shoppingAndroidViewModel()
 ) {
     // Get the selected recipe from RecipesViewModel
     val recipe = recipesVm.getRecipeById(recipeId)
@@ -83,11 +85,17 @@ fun RecipeDetailScreen(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+
+            // Collect missing ingredients for bulk add to shopping
+            val missingIngredients = mutableListOf<String>()
+
             recipe.ingredients.forEach { ingredient ->
                 val inCupboard = cupboardNames.any { cupboardName ->
                     val ing = ingredient.trim().lowercase()
                     cupboardName.contains(ing) || ing.contains(cupboardName)
                 }
+
+                if (!inCupboard) missingIngredients += ingredient
 
                 Column(
                     modifier = Modifier
@@ -109,16 +117,43 @@ fun RecipeDetailScreen(
 
                         if (!inCupboard) {
                             Button(onClick = {
-                                // Add missing ingredient to shopping list
-                                cupboardVm.add(ingredient, null, null)
+                                // Add missing ingredient to shopping list with simple defaults
+                                shoppingVm.add(
+                                    name = ingredient,
+                                    quantity = "1",
+                                    unit = "x"
+                                )
                             }) {
-                                Text("Add to cupboard")
+                                Text("Add to shopping")
                             }
                         }
                     }
                 }
             }
+
+            // Bulk add all missing ingredients to shopping
+            if (missingIngredients.isNotEmpty()) {
+                Button(
+                    onClick = {
+                        missingIngredients.forEach { ing ->
+                            shoppingVm.add(
+                                name = ing,
+                                quantity = "1",
+                                unit = "x"
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Add ALL missing to shopping")
+                }
+            }
         }
+
+        Spacer(Modifier.height(12.dp))
+
+        Text("Instructions:")
+        Text(recipe.instructions ?: "No instructions available.")
     }
 }
 
@@ -133,6 +168,12 @@ private fun recipesAndroidViewModel(): RecipesViewModel {
 
 @Composable
 private fun cupboardAndroidViewModel(): CupboardViewModel {
+    val app = LocalContext.current.applicationContext as Application
+    return viewModel(factory = ViewModelProvider.AndroidViewModelFactory.getInstance(app))
+}
+
+@Composable
+private fun shoppingAndroidViewModel(): ShoppingListViewModel {
     val app = LocalContext.current.applicationContext as Application
     return viewModel(factory = ViewModelProvider.AndroidViewModelFactory.getInstance(app))
 }

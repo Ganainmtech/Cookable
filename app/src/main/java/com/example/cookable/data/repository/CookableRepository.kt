@@ -5,7 +5,8 @@ import com.example.cookable.data.local.dao.ShoppingDao
 import com.example.cookable.data.local.entity.CupboardItemEntity
 import com.example.cookable.data.local.entity.ShoppingItemEntity
 import com.example.cookable.data.remote.api.RecipeApi
-import com.example.cookable.data.local.dao.RecipeDto
+import com.example.cookable.data.remote.dto.RecipeDto
+import com.example.cookable.data.remote.dto.RecipeSearchResponse
 import kotlinx.coroutines.flow.Flow
 
 class CookableRepository(
@@ -26,6 +27,19 @@ class CookableRepository(
             )
         )
     }
+
+    suspend fun addMissingIngredientsToShopping(missing: List<String>) {
+        missing.forEach { name ->
+            shoppingDao.insert(
+                ShoppingItemEntity(
+                    name = name,
+                    quantity = null,
+                    unit = null
+                )
+            )
+        }
+    }
+
 
     suspend fun removeCupboardItemById(id: Long) {
         cupboardDao.deleteById(id)

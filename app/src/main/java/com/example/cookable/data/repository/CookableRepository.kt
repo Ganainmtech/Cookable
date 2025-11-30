@@ -28,17 +28,17 @@ class CookableRepository(
         )
     }
 
-    suspend fun addMissingIngredientsToShopping(missing: List<String>) {
-        missing.forEach { name ->
-            shoppingDao.insert(
-                ShoppingItemEntity(
-                    name = name,
-                    quantity = null,
-                    unit = null
-                )
+    suspend fun moveShoppingItemToCupboard(item: ShoppingItemEntity) {
+        cupboardDao.insert(
+            CupboardItemEntity(
+                name = item.name,
+                quantity = item.quantity,
+                unit = item.unit
             )
-        }
+        )
+        shoppingDao.deleteById(item.id)
     }
+
 
 
     suspend fun removeCupboardItemById(id: Long) {

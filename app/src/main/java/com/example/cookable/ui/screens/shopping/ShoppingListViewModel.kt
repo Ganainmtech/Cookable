@@ -37,4 +37,10 @@ class ShoppingListViewModel(application: Application) : AndroidViewModel(applica
 
     fun remove(id: Long) =
         viewModelScope.launch { repo.removeShoppingItemById(id) }
+
+    fun moveToCupboard(item: ShoppingItemEntity) =
+        viewModelScope.launch {
+            repo.moveShoppingItemToCupboard(item)
+        }
+
 }

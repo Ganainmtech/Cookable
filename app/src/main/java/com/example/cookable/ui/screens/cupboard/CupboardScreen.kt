@@ -70,7 +70,10 @@ fun CupboardScreen(
                 ) {
                     val right = listOfNotNull(item.quantity, item.unit).joinToString(" ")
                     Text("${item.name}${if (right.isNotBlank()) " — $right" else ""}")
-                    Button(onClick = { vm.remove(item.id) }) { Text("Remove") }
+
+                    Button(onClick = { vm.remove(item.id) }) {
+                        Text("🍽️ Remove")
+                    }
                 }
             }
         }

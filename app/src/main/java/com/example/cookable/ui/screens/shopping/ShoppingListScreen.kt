@@ -73,8 +73,14 @@ fun ShoppingListScreen(
                 ) {
                     val right = listOfNotNull(item.quantity, item.unit).joinToString(" ")
                     Text("${item.name}${if (right.isNotBlank()) " — $right" else ""}")
-                    Button(onClick = { vm.remove(item.id) }) {
-                        Text("Remove")
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { vm.moveToCupboard(item) }) {
+                            Text("📦 Bought")
+                        }
+                        Button(onClick = { vm.remove(item.id) }) {
+                            Text("🗑️")
+                        }
                     }
                 }
             }

@@ -10,7 +10,7 @@ private val DarkColors = darkColorScheme()
 
 @Composable
 fun CookableTheme(
-    darkTheme: Boolean = false, // keep simple for now
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
     MaterialTheme(

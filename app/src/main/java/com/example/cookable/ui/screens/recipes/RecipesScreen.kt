@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -37,7 +38,12 @@ fun RecipesScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Recipes 🍜")
+        // Screen title using Material typography + theme colour
+        Text(
+            "Recipes 🍜",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
 
         // Search bar + button
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -88,17 +94,27 @@ fun RecipesScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(recipe.name)
+                        // Recipe name as a slightly larger text
+                        Text(
+                            recipe.name,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                         Button(onClick = { onOpenRecipe(recipe.id.toString()) }) {
                             Text("View")
                         }
                     }
 
+                    // Status styled with theme colours
                     Text(
                         text = if (recipe.isCookable)
                             "Cookable with your cupboard ✅"
                         else
-                            "Missing ingredients ❌"
+                            "Missing ingredients ❌",
+                        color = if (recipe.isCookable)
+                            MaterialTheme.colorScheme.primary
+                        else
+                            MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -107,7 +123,11 @@ fun RecipesScreen(
         // Simple error label if something went wrong
         if (state.error != null) {
             Spacer(Modifier.height(8.dp))
-            Text(state.error!!)
+            Text(
+                state.error!!,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

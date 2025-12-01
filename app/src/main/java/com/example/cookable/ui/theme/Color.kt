@@ -2,5 +2,5 @@
 
 import androidx.compose.material3.Shapes
 
-// Keep defaults – we’re not customizing yet
+// Keep defaults
 val Shapes = Shapes()

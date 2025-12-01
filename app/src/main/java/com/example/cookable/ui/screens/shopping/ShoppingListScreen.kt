@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +36,12 @@ fun ShoppingListScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Shopping List 🛍️")
+        // Screen title styled with Material typography + theme colour
+        Text(
+            "Shopping List 🛍️",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
 
         // inputs for item name, quantity and unit
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -77,7 +83,12 @@ fun ShoppingListScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     val right = listOfNotNull(item.quantity, item.unit).joinToString(" ")
-                    Text("${item.name}${if (right.isNotBlank()) " — $right" else ""}")
+
+                    // Name styled with bodyLarge (nice readability)
+                    Text(
+                        "${item.name}${if (right.isNotBlank()) " — $right" else ""}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
                     // Actions: mark as bought (move to cupboard) or delete
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

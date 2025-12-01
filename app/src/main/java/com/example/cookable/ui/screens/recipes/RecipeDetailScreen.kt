@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -56,13 +57,28 @@ fun RecipeDetailScreen(
         }
 
         if (recipe == null) {
-            Text("Recipe not found.")
+            Text(
+                "Recipe not found.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error
+            )
             return@Column
         }
 
-        Text("Recipe Detail 📖")
-        Text("Recipe ID: ${recipe.id}")
-        Text("Name: ${recipe.name}")
+        // Main title + basic info
+        Text(
+            "Recipe Detail 📖",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            "Recipe ID: ${recipe.id}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            "Name: ${recipe.name}",
+            style = MaterialTheme.typography.titleMedium
+        )
 
         Spacer(Modifier.height(8.dp))
 
@@ -79,12 +95,20 @@ fun RecipeDetailScreen(
             text = if (isCookableWithCupboard)
                 "Cookable with your cupboard ✅"
             else
-                "You are missing some ingredients ❌"
+                "You are missing some ingredients ❌",
+            color = if (isCookableWithCupboard)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium
         )
 
         Spacer(Modifier.height(8.dp))
 
-        Text("Ingredients:")
+        Text(
+            "Ingredients:",
+            style = MaterialTheme.typography.titleMedium
+        )
 
         // List ingredients + show if each one is in cupboard or missing
         Column(
@@ -108,7 +132,10 @@ fun RecipeDetailScreen(
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
                 ) {
-                    Text(ingredient)
+                    Text(
+                        ingredient,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -118,7 +145,12 @@ fun RecipeDetailScreen(
                             text = if (inCupboard)
                                 "In cupboard ✅"
                             else
-                                "Missing ❌"
+                                "Missing ❌",
+                            color = if (inCupboard)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
                         )
 
                         // Single ingredient to add to shopping
@@ -159,8 +191,14 @@ fun RecipeDetailScreen(
 
         Spacer(Modifier.height(12.dp))
 
-        Text("Instructions:")
-        Text(recipe.instructions ?: "No instructions available.")
+        Text(
+            "Instructions:",
+            style = MaterialTheme.typography.titleMedium
+        )
+        Text(
+            recipe.instructions ?: "No instructions available.",
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 

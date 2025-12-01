@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,7 +37,11 @@ fun CupboardScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Cupboard 🧺")
+        Text(
+            "Cupboard 🧺",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
 
         // Inputs for item name, quantity and unit
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -84,7 +89,10 @@ fun CupboardScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     val right = listOfNotNull(item.quantity, item.unit).joinToString(" ")
-                    Text("${item.name}${if (right.isNotBlank()) " — $right" else ""}")
+                    Text(
+                        "${item.name}${if (right.isNotBlank()) " — $right" else ""}",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
                     Button(onClick = { vm.remove(item.id) }) {
                         Text("🍽️ Remove")

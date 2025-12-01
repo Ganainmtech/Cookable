@@ -11,17 +11,22 @@ import com.example.cookable.data.local.entity.CupboardItemEntity
 import com.example.cookable.data.local.entity.RecipeEntity
 import com.example.cookable.data.local.entity.ShoppingItemEntity
 
+/**
+ * Main Room database for the app.
+ * Holds three tables: cupboard, shopping list, and local recipes.
+ */
 @Database(
     entities = [
         CupboardItemEntity::class,
         ShoppingItemEntity::class,
         RecipeEntity::class
     ],
-    version = 4, // bump version so Room recreates tables
+    version = 4, // bumped when DB structure changed
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
+    // DAO access points
     abstract fun cupboardDao(): CupboardDao
     abstract fun shoppingDao(): ShoppingDao
     abstract fun recipeDao(): RecipeDao
@@ -29,6 +34,10 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
+        /**
+         * Singleton instance of the database
+         * makes sure the app only creates the db once
+         */
         fun getInstance(context: Context): AppDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -36,7 +45,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "cookable.db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration() // easy reset during development
                     .build()
                     .also { INSTANCE = it }
             }

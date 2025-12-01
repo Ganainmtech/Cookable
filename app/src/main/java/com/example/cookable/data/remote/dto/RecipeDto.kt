@@ -3,20 +3,24 @@
 import com.google.gson.annotations.SerializedName
 
 /**
- * Minimal recipe fields from TheMealDB API.
- * Endpoint example: https://www.themealdb.com/api/json/v1/1/search.php?s=chicken
+ * Response wrapper for TheMealDB search endpoint
+ * Same Example: https://www.themealdb.com/api/json/v1/1/search.php?s=chicken
  */
 data class RecipeSearchResponse(
     @SerializedName("meals") val meals: List<RecipeDto>?
 )
 
+/**
+ * A small subset of fields from each recipe
+ * only pull what the app actually needs
+ */
 data class RecipeDto(
     @SerializedName("idMeal") val id: String,
     @SerializedName("strMeal") val name: String,
     @SerializedName("strInstructions") val instructions: String?,
     @SerializedName("strMealThumb") val thumbnailUrl: String?,
 
-    // We only need some ingredient slots (TheMealDB has up to 20)
+    // Only reading the first 10 ingredient fields for the demo
     @SerializedName("strIngredient1") val ingredient1: String?,
     @SerializedName("strIngredient2") val ingredient2: String?,
     @SerializedName("strIngredient3") val ingredient3: String?,
@@ -29,7 +33,7 @@ data class RecipeDto(
     @SerializedName("strIngredient10") val ingredient10: String?
 ) {
     /**
-     * Returns a cleaned list of ingredient names
+     * Collects and cleans all available ingredient fields
      */
     fun ingredients(): List<String> = listOf(
         ingredient1,

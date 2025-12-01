@@ -28,10 +28,10 @@ fun RecipeDetailScreen(
     cupboardVm: CupboardViewModel = cupboardAndroidViewModel(),
     shoppingVm: ShoppingListViewModel = shoppingAndroidViewModel()
 ) {
-    // Get the selected recipe from RecipesViewModel
+    // Look up the selected recipe from the shared RecipesViewModel
     val recipe = recipesVm.getRecipeById(recipeId)
 
-    // Observe cupboard state (same pattern as CupboardScreen)
+    // Watch cupboard items so we can check which ingredients are available
     val cupboardState by cupboardVm.uiState.collectAsState()
 
     // Normalised cupboard ingredient names (lowercased)
@@ -66,6 +66,7 @@ fun RecipeDetailScreen(
 
         Spacer(Modifier.height(8.dp))
 
+        // Check if every ingredient is covered by the cupboard
         val isCookableWithCupboard = recipe.ingredients
             .map { it.trim().lowercase() }
             .all { ing ->
@@ -85,7 +86,7 @@ fun RecipeDetailScreen(
 
         Text("Ingredients:")
 
-        // Simple scroll-less list for ingredients (fine for assignment)
+        // List ingredients + show if each one is in cupboard or missing
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -120,6 +121,7 @@ fun RecipeDetailScreen(
                                 "Missing ❌"
                         )
 
+                        // Single ingredient to add to shopping
                         if (!inCupboard) {
                             Button(onClick = {
                                 // Add missing ingredient to shopping list with simple defaults
@@ -136,7 +138,7 @@ fun RecipeDetailScreen(
                 }
             }
 
-            // Bulk add all missing ingredients to shopping
+            // bulk add all missing ingredients to shopping
             if (missingIngredients.isNotEmpty()) {
                 Button(
                     onClick = {

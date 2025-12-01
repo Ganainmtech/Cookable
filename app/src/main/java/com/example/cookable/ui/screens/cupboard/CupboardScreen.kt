@@ -21,10 +21,12 @@ fun CupboardScreen(
     onGoToRecipes: () -> Unit,
     vm: CupboardViewModel = androidViewModel()
 ) {
+    // local text field state
     var name by remember { mutableStateOf("") }
     var qty by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("") }
 
+    // observe cupboard items from the ViewModel
     val state by vm.uiState.collectAsState()
 
     Column(
@@ -36,32 +38,45 @@ fun CupboardScreen(
     ) {
         Text("Cupboard 🧺")
 
+        // Inputs for item name, quantity and unit
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = name, onValueChange = { name = it }, label = { Text("Item") }
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Item") }
             )
             OutlinedTextField(
                 modifier = Modifier.width(100.dp),
-                value = qty, onValueChange = { qty = it }, label = { Text("Qty") }
+                value = qty,
+                onValueChange = { qty = it },
+                label = { Text("Qty") }
             )
             OutlinedTextField(
                 modifier = Modifier.width(100.dp),
-                value = unit, onValueChange = { unit = it }, label = { Text("Unit") }
+                value = unit,
+                onValueChange = { unit = it },
+                label = { Text("Unit") }
             )
         }
 
+        // add button + shortcut to Recipes tab
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = {
                 vm.add(name, qty.ifBlank { null }, unit.ifBlank { null })
                 name = ""; qty = ""; unit = ""
-            }) { Text("Add") }
+            }) {
+                Text("Add")
+            }
 
-            Button(onClick = onGoToRecipes) { Text("Find Recipes I Can Make →") }
+            Button(onClick = onGoToRecipes) {
+                Text("Find Recipes I Can Make →")
+            }
         }
 
         Spacer(Modifier.height(8.dp))
 
+        // list of cupboard items
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(state.items, key = { it.id }) { item ->
                 Row(
@@ -80,6 +95,9 @@ fun CupboardScreen(
     }
 }
 
+/**
+ * Helper to get an AndroidViewModel from inside Compose
+ */
 @Composable
 private fun androidViewModel(): CupboardViewModel {
     val app = LocalContext.current.applicationContext as Application

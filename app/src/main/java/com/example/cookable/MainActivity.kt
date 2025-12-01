@@ -17,6 +17,7 @@ import com.example.cookable.navigation.CookableNavGraph
 import com.example.cookable.navigation.Routes
 import com.example.cookable.ui.theme.CookableTheme
 
+// Single activity enty point for the app
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Simple model for a bottom navigation tab
 private data class TabItem(
     val route: String,
     val label: String
@@ -35,14 +37,17 @@ private data class TabItem(
 
 @Composable
 private fun CookableApp() {
+    // NavController drives navigation between screens
     val navController = rememberNavController()
 
+    // three tabs: Cupboard, Recipes, Shopping
     val tabs = listOf(
         TabItem(route = Routes.CUPBOARD, label = "Cupboard"),
         TabItem(route = Routes.RECIPES,  label = "Recipes"),
         TabItem(route = Routes.SHOPPING, label = "Shopping")
     )
 
+    // observe current destination so we know which tab is selected
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDest = navBackStackEntry?.destination
 
@@ -54,18 +59,20 @@ private fun CookableApp() {
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
-                            // SIMPLE: always navigate to that route
+                            // Navigate to the tab route
+                            // launchSingleTop avoids multiple copies of same screen
                             navController.navigate(item.route) {
-                                launchSingleTop = true   // avoid duplicates of same screen
+                                launchSingleTop = true
                             }
                         },
-                        icon = {}, // keep it plain for now
+                        icon = {},
                         label = { Text(item.label) }
                     )
                 }
             }
         }
     ) { padding ->
+        // Main navigation host (handles which screen is visible)
         CookableNavGraph(
             navController = navController,
             contentPadding = padding
@@ -73,5 +80,6 @@ private fun CookableApp() {
     }
 }
 
+// Helper to check if the current destination is under a given route
 private fun NavDestination?.isInHierarchy(route: String): Boolean =
     this?.hierarchy?.any { it.route == route } == true

@@ -22,9 +22,10 @@ fun RecipesScreen(
     onOpenRecipe: (String) -> Unit,
     vm: RecipesViewModel = androidViewModel()
 ) {
+    // Observe Recipe UI state from the ViewModel
     val state by vm.uiState.collectAsState()
 
-    // Whenever this screen is shown, recompute cookable status from cupboard
+    // When this screen is shown, refresh what is cookable
     LaunchedEffect(Unit) {
         vm.refreshCookable()
     }
@@ -38,6 +39,7 @@ fun RecipesScreen(
     ) {
         Text("Recipes 🍜")
 
+        // Search bar + button
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
@@ -53,6 +55,7 @@ fun RecipesScreen(
             }
         }
 
+        // toggle to filter recipes by cookable only
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -64,6 +67,7 @@ fun RecipesScreen(
             )
         }
 
+        // decide which recipes to show based on toggle
         val recipesToShow = if (state.showCookableOnly) {
             state.recipes.filter { it.isCookable }
         } else {
@@ -72,6 +76,7 @@ fun RecipesScreen(
 
         Spacer(Modifier.height(8.dp))
 
+        // list of recipes (both local and from API)
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(recipesToShow, key = { it.id }) { recipe ->
                 Column(
@@ -99,6 +104,7 @@ fun RecipesScreen(
             }
         }
 
+        // Simple error label if something went wrong
         if (state.error != null) {
             Spacer(Modifier.height(8.dp))
             Text(state.error!!)
@@ -106,6 +112,9 @@ fun RecipesScreen(
     }
 }
 
+/**
+ * Helper to create an AndroidViewModel from Compose
+ */
 @Composable
 private fun androidViewModel(): RecipesViewModel {
     val app = LocalContext.current.applicationContext as Application

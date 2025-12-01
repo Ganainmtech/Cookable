@@ -12,14 +12,20 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+// UI state for the cupboard screen
 data class CupboardUiState(
     val items: List<CupboardItemEntity> = emptyList()
 )
 
+/**
+ * ViewModel for the Cupboard screen
+ * loads data from Room through the repository
+ */
 class CupboardViewModel(application: Application) : AndroidViewModel(application) {
     private val repo: CookableRepository
 
     init {
+        // build the database + repository
         val db = AppDatabase.getInstance(application)
         repo = CookableRepository(
             cupboardDao = db.cupboardDao(),
@@ -27,14 +33,21 @@ class CupboardViewModel(application: Application) : AndroidViewModel(application
         )
     }
 
+    // expose cupboard items as a StateFlow for Compose
     val uiState: StateFlow<CupboardUiState> =
         repo.cupboardItems
             .map { CupboardUiState(items = it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CupboardUiState())
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = CupboardUiState()
+            )
 
+    // add an item to the cupboard
     fun add(name: String, quantity: String?, unit: String?) =
         viewModelScope.launch { repo.addCupboardItem(name, quantity, unit) }
 
+    // remove an item by ID
     fun remove(id: Long) =
         viewModelScope.launch { repo.removeCupboardItemById(id) }
 }

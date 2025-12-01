@@ -20,10 +20,12 @@ fun ShoppingListScreen(
     contentPadding: PaddingValues,
     vm: ShoppingListViewModel = androidViewModel()
 ) {
+    // Local text field state
     var name by remember { mutableStateOf("") }
     var qty by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("") }
 
+    // Observe shopping list items from the ViewModel
     val state by vm.uiState.collectAsState()
 
     Column(
@@ -35,6 +37,7 @@ fun ShoppingListScreen(
     ) {
         Text("Shopping List 🛍️")
 
+        // inputs for item name, quantity and unit
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
@@ -56,6 +59,7 @@ fun ShoppingListScreen(
             )
         }
 
+        // button to add a new item into the shopping list
         Button(onClick = {
             vm.add(name, qty.ifBlank { null }, unit.ifBlank { null })
             name = ""; qty = ""; unit = ""
@@ -65,6 +69,7 @@ fun ShoppingListScreen(
 
         Spacer(Modifier.height(8.dp))
 
+        // List of shopping items
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(state.items, key = { it.id }) { item ->
                 Row(
@@ -74,6 +79,7 @@ fun ShoppingListScreen(
                     val right = listOfNotNull(item.quantity, item.unit).joinToString(" ")
                     Text("${item.name}${if (right.isNotBlank()) " — $right" else ""}")
 
+                    // Actions: mark as bought (move to cupboard) or delete
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { vm.moveToCupboard(item) }) {
                             Text("📦 Bought")
@@ -88,6 +94,9 @@ fun ShoppingListScreen(
     }
 }
 
+/**
+ * Helper to get ShoppingListViewModel from inside Compose
+ */
 @Composable
 private fun androidViewModel(): ShoppingListViewModel {
     val app = LocalContext.current.applicationContext as Application

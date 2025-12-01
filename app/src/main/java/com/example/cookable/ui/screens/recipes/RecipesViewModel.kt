@@ -4,16 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cookable.data.local.db.AppDatabase
-import com.example.cookable.data.local.entity.RecipeEntity
 import com.example.cookable.data.repository.CookableRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * UI-friendly recipe model including whether it's cookable.
@@ -50,11 +47,8 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
             shoppingDao = db.shoppingDao()
         )
 
+        // Load local recipes immediately and keep them in state
         viewModelScope.launch {
-            // 1) Ensure we have 3 local recipes if table is empty
-            preloadLocalRecipesIfNeeded()
-
-            // 2) Now observe local recipes continuously
             val cupboardNames = repo.cupboardItems.first().map { it.name.trim().lowercase() }
 
             recipeDao.getAll().collect { localRecipes ->
@@ -71,7 +65,7 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
                     RecipeUi(
                         id = entity.id,
                         name = entity.name,
-                        thumbnailUrl = null,
+                        thumbnailUrl = null, // local recipes have no thumbnail
                         isCookable = isCookable,
                         ingredients = ingredients,
                         instructions = entity.instructions
@@ -83,39 +77,44 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private suspend fun preloadLocalRecipesIfNeeded() {
-        withContext(Dispatchers.IO) {
-            val existing = recipeDao.getAll().first()
-            if (existing.isEmpty()) {
-                recipeDao.insertAll(
-                    listOf(
-                        RecipeEntity(
-                            name = "Pasta",
-                            instructions = "Boil pasta. Drain. Add sauce.",
-                            ingredients = "pasta,tomato sauce"
-                        ),
-                        RecipeEntity(
-                            name = "Omelette",
-                            instructions = "Beat eggs. Pour into pan. Fold.",
-                            ingredients = "eggs,butter,salt"
-                        ),
-                        RecipeEntity(
-                            name = "Salad",
-                            instructions = "Chop vegetables. Mix together.",
-                            ingredients = "lettuce,tomato,cucumber"
-                        )
-                    )
-                )
-            }
-        }
-    }
-
     fun onQueryChange(newQuery: String) {
         _uiState.update { it.copy(query = newQuery) }
     }
 
     fun onShowCookableOnlyChange(checked: Boolean) {
         _uiState.update { it.copy(showCookableOnly = checked) }
+    }
+
+    /**
+     * Recalculate "cookable" for all recipes based on the current cupboard contents.
+     * Called when the Recipes screen is shown so the list stays in sync with changes
+     * made from the detail screen.
+     */
+    fun refreshCookable() {
+        viewModelScope.launch {
+            val cupboardNames = repo.cupboardItems
+                .first()
+                .map { it.name.trim().lowercase() }
+
+            _uiState.update { state ->
+                val updated = state.recipes.map { recipe ->
+                    val ingredientsLower = recipe.ingredients
+                        .map { it.trim().lowercase() }
+
+                    val isCookable =
+                        ingredientsLower.isNotEmpty() &&
+                                ingredientsLower.all { ing ->
+                                    cupboardNames.any { c ->
+                                        c.contains(ing) || ing.contains(c)
+                                    }
+                                }
+
+                    recipe.copy(isCookable = isCookable)
+                }
+
+                state.copy(recipes = updated)
+            }
+        }
     }
 
     fun search() {
@@ -135,7 +134,6 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
 
             // Convert API → RecipeUi list using real ingredients from API
             val apiMapped = result.map { dto ->
-
                 val rawIngredients = dto.ingredients()
                 val ingredientsLower = rawIngredients.map { it.lowercase() }
 
@@ -155,19 +153,19 @@ class RecipesViewModel(application: Application) : AndroidViewModel(application)
                 )
             }
 
-            // Merge local + API
-            val merged = _uiState.value.recipes + apiMapped
+            // Keep local recipes (no thumbnail) and replace API recipes each search
+            val localOnly = _uiState.value.recipes.filter { it.thumbnailUrl == null }
+            val merged = localOnly + apiMapped
 
             _uiState.update {
                 it.copy(
                     isLoading = false,
                     recipes = merged,
-                    error = if (merged.isEmpty()) "No recipes found." else null
+                    error = if (apiMapped.isEmpty()) "No recipes found for \"$currentQuery\"." else null
                 )
             }
         }
     }
-
 
     /**
      * Helper to find a recipe by its ID from the current search results.

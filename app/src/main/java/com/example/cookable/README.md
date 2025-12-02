@@ -1,21 +1,28 @@
 # Cookable Kotlin App
-Cookable is an Android app that helps the user manage cupboard items, create a shopping list, and find recipes they can cook based on what ingredients they already have. Its targeted towards students, busy homes, new cooks anyone wanting to save time, money, & reduce food waste.
+
+Cookable is an Android app that helps the user manage cupboard items, create a shopping list, and find recipes they can cook based on the ingredients they already have. It is targeted towards students, busy homes, new cooks, or anyone wanting to save time, money, and reduce food waste.
 
 # Features
-`Cupboard:` Add/remove ingredients you own (saved with Room DB)
 
-`Shopping List:` Add items to buy, remove them, or mark them as bought (moves them to cupboard)
+Cupboard:
+- Add and remove ingredients you own. Items are stored locally using Room Database.
 
-`Recipes:`
-- 3 built-in local recipes stored using Room (loaded on first run).
-- API recipe search using Retrofit + TheMealDB.
+Shopping List:
+- Add items to buy, remove them, or mark them as bought. Bought items are moved automatically into the cupboard. Also stored using Room.
 
-`Cookability:` The app checks which recipes can be cooked with the user’s cupboard items and highlights missing ingredients
+Recipes (API Search):
+- Recipes are now fetched entirely from TheMealDB API using Retrofit. Each recipe includes a title, image, ingredients, and instructions.
 
-`Recipe Detail:` Shows ingredients, cookability, and instructions, with buttons to add missing items to shopping
+Cookability:
+- The app checks which recipes can be cooked with the user’s cupboard items and highlights which ones are missing.
 
-# Technologies
-Kotlin, Jetpack Compose, ViewModel + StateFlow, Room Database, Retrofit, Coroutines, Navigation
+Recipe Detail:
+- Shows full ingredients, cookability status, and instructions. Missing ingredients can be added individually or all at once to the shopping list.
+
+# Tech
+
+Kotlin, Jetpack Compose, ViewModel + StateFlow, Room Database, Retrofit, Coroutines, Coil (for image loading), Navigation Compose.
 
 # Demo
-A short screen recording is included showing all app features here: `com/example/cookable/Cookable Demo.mp4`
+
+A short screen recording is included showing all app features here: `com/example/cookable/Cookable_Demo.mp4`

@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.PaddingValues
+import coil.compose.AsyncImage
 import com.example.cookable.ui.screens.cupboard.CupboardViewModel
 import com.example.cookable.ui.screens.shopping.ShoppingListViewModel
 
@@ -79,6 +80,18 @@ fun RecipeDetailScreen(
             "Name: ${recipe.name}",
             style = MaterialTheme.typography.titleMedium
         )
+
+        // Show image from TheMealDB if the API returned a thumbnail URL
+        if (!recipe.thumbnailUrl.isNullOrBlank()) {
+            Spacer(Modifier.height(8.dp))
+            AsyncImage(
+                model = recipe.thumbnailUrl,
+                contentDescription = "Recipe photo for ${recipe.name}",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            )
+        }
 
         Spacer(Modifier.height(8.dp))
 

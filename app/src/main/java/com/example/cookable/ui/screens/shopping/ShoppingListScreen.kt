@@ -11,10 +11,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.Alignment
 
 @Composable
 fun ShoppingListScreen(
@@ -43,7 +45,7 @@ fun ShoppingListScreen(
             color = MaterialTheme.colorScheme.primary
         )
 
-        // inputs for item name, quantity and unit
+        // Inputs for item name, quantity and unit
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
@@ -65,7 +67,7 @@ fun ShoppingListScreen(
             )
         }
 
-        // button to add a new item into the shopping list
+        // Button to add a new item into the shopping list
         Button(onClick = {
             vm.add(name, qty.ifBlank { null }, unit.ifBlank { null })
             name = ""; qty = ""; unit = ""
@@ -80,18 +82,25 @@ fun ShoppingListScreen(
             items(state.items, key = { it.id }) { item ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     val right = listOfNotNull(item.quantity, item.unit).joinToString(" ")
 
-                    // Name styled with bodyLarge (nice readability)
+                    // Name styled with bodyLarge, single line, ellipsis, and weight
                     Text(
-                        "${item.name}${if (right.isNotBlank()) " — $right" else ""}",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = "${item.name}${if (right.isNotBlank()) " — $right" else ""}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
                     )
 
                     // Actions: mark as bought (move to cupboard) or delete
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Button(onClick = { vm.moveToCupboard(item) }) {
                             Text("📦 Bought")
                         }
